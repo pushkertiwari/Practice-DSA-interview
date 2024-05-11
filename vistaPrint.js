@@ -1,3 +1,6 @@
+// Online Javascript Editor for free
+// Write, Edit and Run your Javascript code using JS Online Compiler
+
 // Vista Print and Cimpress coupon round
 class Product {
     constructor(name, price, type) {
@@ -52,7 +55,7 @@ class ShoppingCart {
                     this.products.forEach(product => {
                         if (product.type === coupon.condition) {
                             count++;
-                            if (count === coupon.value) {
+                            if (count) {
                                 product.price *= (1 - (coupon.value / 100));
                                 count = 0; // Reset count after applying discount
                             }
