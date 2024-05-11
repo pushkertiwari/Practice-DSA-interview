@@ -50,11 +50,12 @@ class ShoppingCart {
                 case 'D%': // D% off on Nth item of Type T
                     let count = 0;
                     this.products.forEach(product => {
-                        if (product.type === coupon.condition && count === coupon.value - 1) {
-                            product.price *= (1 - (coupon.value / 100));
-                        }
                         if (product.type === coupon.condition) {
                             count++;
+                            if (count === coupon.value) {
+                                product.price *= (1 - (coupon.value / 100));
+                                count = 0; // Reset count after applying discount
+                            }
                         }
                     });
                     break;
