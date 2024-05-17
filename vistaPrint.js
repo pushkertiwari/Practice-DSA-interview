@@ -1,95 +1,108 @@
-// Online Javascript Editor for free
-// Write, Edit and Run your Javascript code using JS Online Compiler
-
-// Vista Print and Cimpress coupon round
 class Product {
-    constructor(name, price, type) {
-        this.name = name;
-        this.price = price;
-        this.type = type;
-    }
+  constructor(price, type) {
+    this.price = price;
+    this.type = type;
+  }
 }
 
 class Coupon {
-    constructor(type, value, condition) {
-        this.type = type;
-        this.value = value;
-        this.condition = condition;
+  constructor() {
+    if (this.constructor === Coupon) {
+      throw new Error(
+        "Abstract class 'Coupon' cannot be instantiated directly."
+      );
     }
+  }
+
+  apply(products) {
+    throw new Error("Method 'apply()' must be implemented.");
+  }
 }
 
-class ShoppingCart {
-    constructor() {
-        this.products = [];
-        this.coupons = [];
-    }
+class CouponAll extends Coupon {
+  constructor(percentage) {
+    super();
+    this.percentage = percentage;
+  }
 
-    addProduct(product) {
-        this.products.push(product);
-    }
-
-    addCoupon(coupon) {
-        this.coupons.push(coupon);
-    }
-
-    applyCoupons() {
-        let total = 0;
-
-        // Apply each coupon
-        this.coupons.forEach(coupon => {
-            switch(coupon.type) {
-                case 'N%': // N% off for all items
-                    this.products.forEach(product => {
-                        product.price *= (1 - (coupon.value / 100));
-                    });
-                    break;
-                case 'P%': // P% off on next item
-                    for (let i = 0; i < this.products.length; i++) {
-                        if (i + 1 < this.products.length) {
-                            this.products[i + 1].price *= (1 - (coupon.value / 100));
-                        }
-                    }
-                    break;
-                case 'D%': // D% off on Nth item of Type T
-                    let count = 0;
-                    this.products.forEach(product => {
-                        if (product.type === coupon.condition) {
-                            count++;
-                            if (count) {
-                                product.price *= (1 - (coupon.value / 100));
-                                count = 0; // Reset count after applying discount
-                            }
-                        }
-                    });
-                    break;
-            }
-        });
-
-        // Calculate total after applying coupons
-        this.products.forEach(product => {
-            total += product.price;
-        });
-
-        return total;
-    }
+  apply(products) {
+    products.forEach((product) => {
+      product.price *= 1 - this.percentage / 100;
+    });
+  }
 }
+
+class CouponNext extends Coupon {
+  constructor(percentage) {
+    super();
+    this.percentage = percentage;
+  }
+
+  apply(products) {
+    for (let i = 0; i < products.length - 1; i++) {
+      products[i + 1].price *= 1 - this.percentage / 100;
+      console.log(products[i + 1], 'Next');
+      break;
+    }
+  }
+}
+
+class CouponNextType extends Coupon {
+  constructor(percentage, type) {
+    super();
+    this.percentage = percentage;
+    this.type = type;
+  }
+
+  apply(products) {
+    for (let i = 0; i < products.length; i++) {
+      if (products[i].type === this.type) {
+        products[i].price *= 1 - this.percentage / 100;
+        console.log(products[i], 'next type');
+        break;
+      }
+    }
+  }
+}
+
+class Cart {
+  constructor() {
+    this.items = [];
+  }
+
+  addItem(item) {
+    this.items.push(item);
+  }
+
+  totalPrice() {
+    const products = this.items.filter((item) => item instanceof Product);
+    const coupons = this.items.filter((item) => item instanceof Coupon);
+
+    coupons.forEach((coupon) => coupon.apply(products));
+
+    const total = products.reduce((sum, product) => sum + product.price, 0);
+    return total.toFixed(2);
+  }
+}
+
+// Define Product Types
+const ProductType = {
+  BusinessCard: 'BusinessCard',
+  TShirt: 'TShirt',
+  BackPack: 'BackPack',
+};
 
 // Example usage
-const cart = new ShoppingCart();
+const cart = new Cart();
 
-// Add products to the cart
-cart.addProduct(new Product('BusinessCard', 12.99, 'card'));
-cart.addProduct(new Product('BusinessCard', 12.99, 'card'));
-cart.addProduct(new Product('BusinessCard', 12.99, 'card'));
-cart.addProduct(new Product('Pants', 24.99, 'Clothing'));
-cart.addProduct(new Product('Pants', 24.99, 'Clothing'));
-cart.addProduct(new Product('Shoes', 34.99, 'Footwear'));
+cart.addItem(new Product(12.99, ProductType.BusinessCard));
+cart.addItem(new Product(12.99, ProductType.BusinessCard));
+cart.addItem(new Product(12.99, ProductType.BusinessCard));
+cart.addItem(new CouponAll(25)); // 25% off all products
+cart.addItem(new Product(24.99, ProductType.TShirt));
+cart.addItem(new CouponNext(10)); // 10% off next item
+cart.addItem(new CouponNextType(15, ProductType.BackPack)); // 15% off next BackPack
+cart.addItem(new Product(24.99, ProductType.TShirt));
+cart.addItem(new Product(34.99, ProductType.BackPack));
 
-// Add coupons to the cart
-cart.addCoupon(new Coupon('N%', 25)); // 10% off for all items
-cart.addCoupon(new Coupon('P%', 10)); // 5% off on next item
-cart.addCoupon(new Coupon('D%', 15, 'Footwear')); // 20% off on 3rd clothing item
-
-// Apply coupons and calculate total
-const totalPrice = cart.applyCoupons();
-console.log('Total Price after applying coupons:', totalPrice);
+console.log('Total Price: $', cart.totalPrice());
