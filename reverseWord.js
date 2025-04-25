@@ -16,7 +16,7 @@
 // Explanation: The input string contains only one word with extra spaces around it. After removing the extra spaces, the output is "a".Constraints:
 
 
-Solution:- 
+// Solution:- 
 class Solution {
     // Function to reverse words in a given string.
     reverseWords(s) {
