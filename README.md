@@ -1,1 +1,1 @@
-# interviewPerCompany
+# interview questions bank
