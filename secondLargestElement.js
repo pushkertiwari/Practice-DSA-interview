@@ -7,7 +7,7 @@ function secondLargest(items) {
         if (items[i] > largest) {
             secondLargest = largest;
             largest = items[i];
-        } else if (items[i] < largest && items[i] > secondLargest) {
+        } else if (items[i] < largest && items[i] !== secondLargest) {
             secondLargest = items[i];
        }
     }
